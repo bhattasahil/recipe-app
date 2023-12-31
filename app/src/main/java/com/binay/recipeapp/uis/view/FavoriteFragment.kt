@@ -20,13 +20,13 @@ import com.binay.recipeapp.util.NetworkUtil
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
 @AndroidEntryPoint
 class FavoriteFragment : Fragment() {
 
     private lateinit var mBinding: FragmentFavoriteBinding
     private lateinit var mAdapter: RecipeRecyclerAdapter
     private val mViewModel: MainViewModel by viewModels()
-
 
     private var mListener: FavoriteListener? = null
 
@@ -99,7 +99,7 @@ class FavoriteFragment : Fragment() {
                     }
 
                     is DataState.AddToFavoriteResponse -> {
-                        val isFavorite = it.recipe.isFavorite ?: true
+                        val isFavorite = it.recipe.isFavorite
                         if (!isFavorite) {
                             mAdapter.removeRecipe(it.recipe)
                         }

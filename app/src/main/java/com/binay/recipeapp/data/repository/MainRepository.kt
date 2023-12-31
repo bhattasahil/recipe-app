@@ -3,7 +3,6 @@ package com.binay.recipeapp.data.repository
 import android.content.Context
 import com.binay.recipeapp.data.api.ApiHelper
 import com.binay.recipeapp.data.repository.local.LocalRepo
-import com.binay.recipeapp.data.local.favoriteDb.AppDatabase
 import com.binay.recipeapp.data.model.RecipeResponseData
 import com.binay.recipeapp.data.repository.remote.RemoteRepo
 import com.binay.recipeapp.util.NetworkUtil
@@ -12,7 +11,6 @@ import javax.inject.Inject
 
 class MainRepository @Inject constructor(
     @ApplicationContext private val mContext: Context,
-    mDatabase: AppDatabase,
     private val apiHelper: ApiHelper,
     private val mLocalRepo: LocalRepo,
     private val mRemoteRepo: RemoteRepo

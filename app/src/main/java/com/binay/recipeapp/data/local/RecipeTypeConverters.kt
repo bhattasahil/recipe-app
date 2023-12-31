@@ -1,10 +1,9 @@
-package com.binay.recipeapp.data.local.favoriteDb
+package com.binay.recipeapp.data.local
 
 import androidx.room.TypeConverter
 import com.binay.recipeapp.data.model.AnalyzedInstructions
 import com.binay.recipeapp.data.model.ExtendedIngredients
 import com.binay.recipeapp.data.model.Nutrition
-import com.binay.recipeapp.data.model.RecipeData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type

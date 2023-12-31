@@ -122,11 +122,6 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
     }
 
     private fun initViewModel() {
-//        viewModel = ViewModelProvider(
-//            this,
-//            ViewModelFactory(requireContext())
-//        )[MainViewModel::class.java]
-
         lifecycleScope.launch {
             viewModel.dataState.collect {
                 when (it) {

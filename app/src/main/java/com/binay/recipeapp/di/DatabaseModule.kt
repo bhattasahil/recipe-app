@@ -3,8 +3,7 @@ package com.binay.recipeapp.di
 import android.content.Context
 import androidx.room.Room
 import com.binay.recipeapp.data.local.WebsiteDao
-import com.binay.recipeapp.data.local.favoriteDb.AppDatabase
-import com.binay.recipeapp.data.local.favoriteDb.FavoriteDao
+import com.binay.recipeapp.data.local.AppDatabase
 import com.binay.recipeapp.data.local.ingredientDb.IngredientDao
 import com.binay.recipeapp.data.local.randomRecipeDb.RandomRecipeDao
 import com.binay.recipeapp.data.local.recipesDb.RecipeDao
@@ -27,11 +26,6 @@ object DatabaseModule {
             "recipe-palette"
         )
             .build()
-    }
-
-    @Provides
-    fun provideFavoriteDao(database: AppDatabase): FavoriteDao {
-        return database.favoriteDao()
     }
 
     @Provides
