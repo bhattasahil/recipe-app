@@ -17,11 +17,16 @@ class MainRepository @Inject constructor(
 ) {
 
     suspend fun getRecipes(tag: String): RecipeResponseData {
+        val newTag = if (tag == "all") {
+            ""
+        } else {
+            tag
+        }
         if (!NetworkUtil.isNetworkAvailable(mContext)) {
-            val recipesData = mLocalRepo.getRecipesByTag(tag)
+            val recipesData = mLocalRepo.getRecipesByTag(newTag)
             if (recipesData != null) return recipesData
         }
-        return mRemoteRepo.getRecipes(tag)
+        return mRemoteRepo.getRecipes(newTag)
     }
 
     suspend fun getRecipeDetail(id: Int) = apiHelper.getRecipeDetail(id)

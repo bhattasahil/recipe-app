@@ -30,13 +30,8 @@ class RemoteRepo @Inject constructor(
     }
 
     suspend fun getRecipes(tag: String): RecipeResponseData {
-
-        val recipeData = if (tag == "all")
-            apiHelper.getData("")
-        else apiHelper.getData(tag)
-
+        val recipeData = apiHelper.getData(tag)
 //        Fetch and remove previous recipes which are not favorite
-
         val previousRecipes = recipeDao.getRecipes(tag)
 
         val isFirstLoad = previousRecipes?.isEmpty() == true
