@@ -1,8 +1,6 @@
 package com.binay.recipeapp.uis.view
 
 import android.content.Context
-import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.CompoundButton
@@ -21,8 +19,9 @@ class RecipeRecyclerAdapter(
     private var recipeList: ArrayList<RecipeData> = ArrayList()
 
     fun setRecipes(recipes: ArrayList<RecipeData>) {
-        this.recipeList = recipes
-        notifyDataSetChanged()
+        recipeList.clear()
+        recipeList.addAll(recipes)
+        this.notifyDataSetChanged()
     }
 
     class RecipeViewHolder(binding: ItemRecipeBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -72,19 +71,30 @@ class RecipeRecyclerAdapter(
 
     }
 
-    override fun onViewRecycled(holder: RecipeViewHolder) {
-        super.onViewRecycled(holder)
-    }
     fun removeRecipe(recipe: RecipeData) {
         val position = recipeList.indexOf(recipe)
         recipeList.remove(recipe)
         notifyItemRemoved(position)
-//        notifyItemRangeRemoved(position, 1)
+    }
+
+    fun addRecipe(recipe: RecipeData) {
+        recipeList.add(recipe)
+        notifyItemInserted(recipeList.size - 1)
+    }
+
+//Changes favourite status in HomeFragment when favorite is removed from FavouriteFragment
+    fun changeFavoriteStatus(recipe: RecipeData, isFromHome: Boolean) {
+        if (!isFromHome) {
+            val recipeOfList = recipeList.find { it.id == recipe.id }
+            recipeOfList?.let {
+                val position = recipeList.indexOf(it)
+                notifyItemChanged(position)
+            }
+        }
     }
 
     interface RecipeClickListener {
         fun onFavoriteChanged(recipe: RecipeData, isToFavorite: Boolean)
         fun onRecipeClicked(recipe: RecipeData)
-
     }
 }

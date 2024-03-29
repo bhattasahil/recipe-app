@@ -1,6 +1,5 @@
 package com.binay.recipeapp.uis.view.search
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -18,7 +17,6 @@ import com.binay.recipeapp.R
 import com.binay.recipeapp.data.model.SearchedRecipe
 import com.binay.recipeapp.databinding.FragmentSearchBinding
 import com.binay.recipeapp.uis.intent.DataIntent
-import com.binay.recipeapp.uis.view.HomeFragment
 import com.binay.recipeapp.uis.view.RecipeDetailActivity
 import com.binay.recipeapp.uis.viewmodel.MainViewModel
 import com.binay.recipeapp.uis.viewstate.DataState
@@ -27,13 +25,13 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.lang.Exception
+
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
     private val mViewModel: MainViewModel by viewModels()
     private lateinit var mAdapter: SearchedRecipeAdapter
-    private var mListener: SearchListener? = null
 
     //    Use this to search by recipes or nutrients
     private var isToSearchByRecipes = true
@@ -50,13 +48,6 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
-    }
-
-    override fun onAttach(context: Context) {
-        if (context is SearchListener) {
-            mListener = context
-        }
-        super.onAttach(context)
     }
 
     private fun initView() {
@@ -81,7 +72,11 @@ class SearchFragment : Fragment() {
 
                 override fun onRecipeClicked(recipe: SearchedRecipe) {
                     if (!NetworkUtil.isNetworkAvailable(requireContext())) {
-                        Snackbar.make(binding.root, getString(R.string.no_connection), Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.no_connection),
+                            Snackbar.LENGTH_SHORT
+                        ).show()
                         return
                     }
                     val intent = Intent(context, RecipeDetailActivity::class.java)
@@ -152,8 +147,7 @@ class SearchFragment : Fragment() {
                     }
 
                     is DataState.AddToFavoriteResponse -> {
-                        mListener?.refreshFavoriteFragment()
-                        mListener?.refreshHomeFragment()
+//                       Removed favorite from search at the moment. TODO Configure sync of favourite between search, home and favorite
                     }
 
                     is DataState.SearchRecipesByNutrients -> {
@@ -195,7 +189,4 @@ class SearchFragment : Fragment() {
         }
     }
 
-    interface SearchListener : HomeFragment.HomeFragmentListener {
-        fun refreshHomeFragment()
-    }
 }

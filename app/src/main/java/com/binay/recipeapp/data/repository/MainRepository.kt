@@ -2,8 +2,8 @@ package com.binay.recipeapp.data.repository
 
 import android.content.Context
 import com.binay.recipeapp.data.api.ApiHelper
+import com.binay.recipeapp.data.model.RecipeData
 import com.binay.recipeapp.data.repository.local.LocalRepo
-import com.binay.recipeapp.data.local.favoriteDb.AppDatabase
 import com.binay.recipeapp.data.model.RecipeResponseData
 import com.binay.recipeapp.data.repository.remote.RemoteRepo
 import com.binay.recipeapp.util.NetworkUtil
@@ -12,18 +12,22 @@ import javax.inject.Inject
 
 class MainRepository @Inject constructor(
     @ApplicationContext private val mContext: Context,
-    mDatabase: AppDatabase,
     private val apiHelper: ApiHelper,
     private val mLocalRepo: LocalRepo,
     private val mRemoteRepo: RemoteRepo
 ) {
 
     suspend fun getRecipes(tag: String): RecipeResponseData {
+        val newTag = if (tag == "all") {
+            ""
+        } else {
+            tag
+        }
         if (!NetworkUtil.isNetworkAvailable(mContext)) {
-            val recipesData = mLocalRepo.getRecipesByTag(tag)
+            val recipesData = mLocalRepo.getRecipesByTag(newTag)
             if (recipesData != null) return recipesData
         }
-        return mRemoteRepo.getRecipes(tag)
+        return mRemoteRepo.getRecipes(newTag)
     }
 
     suspend fun getRecipeDetail(id: Int) = apiHelper.getRecipeDetail(id)
@@ -39,5 +43,9 @@ class MainRepository @Inject constructor(
             if (localRandomRecipe != null) return localRandomRecipe
         }
         return mRemoteRepo.getRandomRecipe()
+    }
+
+    fun changeFavoriteStatus(recipe: RecipeData, isToFavorite: Boolean) {
+
     }
 }

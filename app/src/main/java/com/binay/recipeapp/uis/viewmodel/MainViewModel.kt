@@ -4,9 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.binay.recipeapp.data.local.WebsiteDao
-import com.binay.recipeapp.data.local.favoriteDb.AppDatabase
-import com.binay.recipeapp.data.local.favoriteDb.FavoriteDao
 import com.binay.recipeapp.data.local.ingredientDb.IngredientDao
+import com.binay.recipeapp.data.local.recipesDb.RecipeDao
 import com.binay.recipeapp.data.model.ExtendedIngredients
 import com.binay.recipeapp.data.model.RecipeData
 import com.binay.recipeapp.data.model.SearchedRecipe
@@ -26,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mRepository: MainRepository,
-    private val favoriteDao: FavoriteDao,
+    private val recipeDao: RecipeDao,
     private val websiteDao: WebsiteDao,
     private val ingredientDao: IngredientDao
 ) : ViewModel() {
@@ -97,7 +96,7 @@ class MainViewModel @Inject constructor(
 
                     is DataIntent.ChangeFavoriteStatus -> changeFavoriteStatus(
                         it.recipe,
-                        it.isToFavorite
+                        it.isToFavorite, it.isFromHome
                     )
 
                     is DataIntent.FetchFavoriteRecipe -> fetchFavoriteRecipes()
@@ -135,9 +134,8 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             dataState.value = DataState.Loading
             dataState.value = try {
-                val recipes = mRepository.getRecipes(tag)
-
-                DataState.ResponseData(recipes)
+                val recipeResponse = mRepository.getRecipes(tag)
+                DataState.ResponseData(recipeResponse)
             } catch (e: Exception) {
                 // TODO: Add proper way to parse error message and display to users
                 DataState.Error(e.localizedMessage)
@@ -147,7 +145,6 @@ class MainViewModel @Inject constructor(
 
     private fun fetchRecipeDetailData(recipeID: Int) {
         viewModelScope.launch {
-            Log.e("viewmodel", "fetchRecipeDetailData: ")
             dataState.value = DataState.Loading
             dataState.value = try {
                 val recipeDetail = mRepository.getRecipeDetail(recipeID)
@@ -158,20 +155,19 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun changeFavoriteStatus(recipe: RecipeData, isToFavorite: Boolean) {
+    private fun changeFavoriteStatus(
+        recipe: RecipeData,
+        isToFavorite: Boolean,
+        isFromHome: Boolean
+    ) {
         viewModelScope.launch {
             dataState.value = DataState.Loading
             dataState.value = try {
+                mRepository.changeFavoriteStatus(recipe, isToFavorite)
                 recipe.isFavorite = isToFavorite
-//               Checks favorite Dao and updates data accordingly
-                val favoriteRecipes = favoriteDao.getAllRecipes()
-                favoriteRecipes.size
-                if (isToFavorite) {
-                    favoriteDao.addRecipe(recipe)
-                } else {
-                    favoriteDao.removeRecipeFromFavorite(recipe)
-                }
-                DataState.AddToFavoriteResponse(recipe)
+//               Checks recipe Dao for favorites and updates data accordingly
+                recipeDao.changeRecipeFavoriteStatus(recipe)
+                DataState.AddToFavoriteResponse(recipe, isFromHome)
             } catch (e: Exception) {
                 // TODO: Add proper way to parse error message and display to users
                 Log.e("Error ", "" + e.localizedMessage)
@@ -182,8 +178,8 @@ class MainViewModel @Inject constructor(
 
     private suspend fun fetchFavoriteRecipes() {
         dataState.value = try {
-            val favoriteRecipe = favoriteDao.getAllRecipes()
-            DataState.FavoriteResponse(favoriteRecipe.toCollection(ArrayList()))
+            val favoriteRecipes = recipeDao.getAllFavoriteRecipes()
+            DataState.FavoriteResponse(favoriteRecipes.toCollection(ArrayList()))
         } catch (e: Exception) {
             DataState.Error(e.localizedMessage)
         }
@@ -195,13 +191,13 @@ class MainViewModel @Inject constructor(
             dataState.value = try {
                 val searchedRecipeData = mRepository.searchRecipes(query)
                 Log.e("sdsdd ", "" + searchedRecipeData)
-//               Checks favorite Dao and updates data accordingly
-//                Note: If room has recipe, then it is automatically favorite
+//               Checks recipe Dao for favorites and updates data accordingly
+//                Note: If recipe has isFavorite flag set, then it is favorite
                 val searchedRecipes = searchedRecipeData.results ?: return@launch
                 searchedRecipes.forEach {
                     val recipeId = it.id
                     if (recipeId != null) {
-                        val favoriteRecipe = favoriteDao.getRecipe(recipeId)
+                        val favoriteRecipe = recipeDao.getFavoriteRecipe(recipeId)
                         if (favoriteRecipe != null) {
                             it.isFavorite = true
                         }
@@ -230,13 +226,9 @@ class MainViewModel @Inject constructor(
                 dataState.value = try {
                     Log.e("Favorite ", " Here")
                     recipeDetail.isFavorite = isToFavorite
-//               Checks favorite Dao and updates data accordingly
-                    if (isToFavorite) {
-                        favoriteDao.addRecipe(recipeDetail)
-                    } else {
-                        favoriteDao.removeRecipeFromFavorite(recipeDetail)
-                    }
-                    DataState.AddToFavoriteResponse(RecipeData())
+//               Checks recipe Dao for favorites and updates data accordingly
+                    recipeDao.changeRecipeFavoriteStatus(recipeDetail)
+                    DataState.AddToFavoriteResponse(RecipeData(), false)
                 } catch (e: Exception) {
                     // TODO: Add proper way to parse error message and display to users
                     Log.e("Error ", "" + e.localizedMessage)
@@ -256,12 +248,12 @@ class MainViewModel @Inject constructor(
                 val searchedRecipes: ArrayList<SearchedRecipe> =
                     mRepository.searchRecipesByIngredients(query)
                 Log.e("Recipes by nutrients ", "" + searchedRecipes)
-//               Checks favorite Dao and updates data accordingly
-//                Note: If room has recipe, then it is automatically favorite
+//               Checks recipe Dao for favorites and updates data accordingly
+//                Note: If room has isFavorite flag set, then it is automatically favorite
                 searchedRecipes.forEach {
                     val recipeId = it.id
                     if (recipeId != null) {
-                        val favoriteRecipe = favoriteDao.getRecipe(recipeId)
+                        val favoriteRecipe = recipeDao.getFavoriteRecipe(recipeId)
                         if (favoriteRecipe != null) {
                             it.isFavorite = true
                         }

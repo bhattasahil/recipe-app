@@ -2,8 +2,6 @@ package com.binay.recipeapp.di
 
 import android.content.Context
 import com.binay.recipeapp.data.api.ApiHelper
-import com.binay.recipeapp.data.local.favoriteDb.AppDatabase
-import com.binay.recipeapp.data.local.favoriteDb.FavoriteDao
 import com.binay.recipeapp.data.local.randomRecipeDb.RandomRecipeDao
 import com.binay.recipeapp.data.local.recipesDb.RecipeDao
 import com.binay.recipeapp.data.repository.MainRepository
@@ -31,16 +29,14 @@ internal object ViewModelMainModule {
     fun provideRemoteRepo(
         apiHelper: ApiHelper,
         randomRecipeDao: RandomRecipeDao,
-        recipeDao: RecipeDao,
-        favoriteDao: FavoriteDao
-    ) = RemoteRepo(apiHelper, randomRecipeDao, recipeDao, favoriteDao)
+        recipeDao: RecipeDao
+    ) = RemoteRepo(apiHelper, randomRecipeDao, recipeDao)
 
     @Provides
     @ViewModelScoped
     fun provideMainRepo(
         @ApplicationContext context: Context,
-        mDatabase: AppDatabase, apiHelper: ApiHelper, localRepo: LocalRepo, remoteRepo: RemoteRepo
-    ) = MainRepository(context, mDatabase, apiHelper, localRepo, remoteRepo)
-
+        apiHelper: ApiHelper, localRepo: LocalRepo, remoteRepo: RemoteRepo
+    ) = MainRepository(context, apiHelper, localRepo, remoteRepo)
 
 }

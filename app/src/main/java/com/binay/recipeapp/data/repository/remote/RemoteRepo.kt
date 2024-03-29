@@ -2,8 +2,6 @@ package com.binay.recipeapp.data.repository.remote
 
 import android.util.Log
 import com.binay.recipeapp.data.api.ApiHelper
-import com.binay.recipeapp.data.local.favoriteDb.AppDatabase
-import com.binay.recipeapp.data.local.favoriteDb.FavoriteDao
 import com.binay.recipeapp.data.local.randomRecipeDb.RandomRecipeDao
 import com.binay.recipeapp.data.local.recipesDb.RecipeDao
 import com.binay.recipeapp.data.model.RecipeResponseData
@@ -11,8 +9,8 @@ import javax.inject.Inject
 
 class RemoteRepo @Inject constructor(
     private val apiHelper: ApiHelper,
-    private val randomRecipeDao: RandomRecipeDao, private val recipeDao: RecipeDao,
-    private val favoriteDao: FavoriteDao
+    private val randomRecipeDao: RandomRecipeDao,
+    private val recipeDao: RecipeDao
 ) {
 
     suspend fun getRandomRecipe(): RecipeResponseData {
@@ -32,13 +30,8 @@ class RemoteRepo @Inject constructor(
     }
 
     suspend fun getRecipes(tag: String): RecipeResponseData {
-
-        val recipeData = if (tag == "all")
-            apiHelper.getData("")
-        else apiHelper.getData(tag)
-
+        val recipeData = apiHelper.getData(tag)
 //        Fetch and remove previous recipes which are not favorite
-
         val previousRecipes = recipeDao.getRecipes(tag)
 
         val isFirstLoad = previousRecipes?.isEmpty() == true
@@ -53,12 +46,13 @@ class RemoteRepo @Inject constructor(
             Log.e(" After Remove, Db Count ", " ${recipeDao.getRecipes(tag)?.count()}")
         }
 
-        recipeData.recipes.forEach {
-            it.tagToBeSearchedBy = tag
-//            Checks favorite Dao and updates data accordingly
+        if (!isFirstLoad) {
+            recipeData.recipes.forEach {
+                it.tagToBeSearchedBy = tag
+//            Checks recipe Dao to fetch favorites and updates data accordingly
 //                Note: If room has recipe, then it is automatically favorite
-            if (!isFirstLoad) {
-                val favoriteRecipe = favoriteDao.getRecipe(it.id)
+
+                val favoriteRecipe = recipeDao.getFavoriteRecipe(it.id)
                 Log.e("Favorite Recipe: ", " $favoriteRecipe")
                 if (favoriteRecipe != null) {
                     it.isFavorite = true

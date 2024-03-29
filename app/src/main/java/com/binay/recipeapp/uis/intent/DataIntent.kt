@@ -16,10 +16,11 @@ sealed class DataIntent {
 
     data class ChangeFavoriteStatus(
         val recipe: RecipeData,
-        val isToFavorite: Boolean
+        val isToFavorite: Boolean,
+        val isFromHome : Boolean
     ) : DataIntent()
 
-    data class FetchFavoriteRecipe(val isFromFavorite: Boolean?) : DataIntent()
+    object FetchFavoriteRecipe : DataIntent()
 
     data class SearchRecipe(val query: String) : DataIntent()
 
