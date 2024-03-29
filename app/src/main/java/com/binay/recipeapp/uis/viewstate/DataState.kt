@@ -30,4 +30,6 @@ sealed class DataState {
     data class AddToShoppingList(val ingredients: List<ExtendedIngredients>) : DataState()
 
     data class FetchWebsiteList(val websites: List<WebsiteData>) : DataState()
+
+    data class RandomRecipe(val recipeResponseData: RecipeResponseData) : DataState()
 }

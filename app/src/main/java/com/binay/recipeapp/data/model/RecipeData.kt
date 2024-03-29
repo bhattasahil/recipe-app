@@ -15,7 +15,7 @@ data class RecipeData(
     var aggregateLikes: Int? = null,
     var healthScore: Int? = null,
     var extendedIngredients: ArrayList<ExtendedIngredients> = arrayListOf(),
-    @PrimaryKey var id: Int = System.currentTimeMillis().toInt(),
+    @PrimaryKey var id: Int,
     var title: String? = null,
     var readyInMinutes: Int? = null,
     var summary: String? = null,

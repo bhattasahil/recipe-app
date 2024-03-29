@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.binay.recipeapp.R
@@ -30,7 +30,7 @@ import java.lang.Exception
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
-    private val mViewModel: MainViewModel by viewModels()
+    private val mViewModel: MainViewModel by activityViewModels()
     private lateinit var mAdapter: SearchedRecipeAdapter
 
     //    Use this to search by recipes or nutrients
@@ -124,11 +124,6 @@ class SearchFragment : Fragment() {
     }
 
     private fun initViewModel() {
-//        mViewModel = ViewModelProvider(
-//            this,
-//            ViewModelFactory(requireContext())
-//        )[MainViewModel::class.java]
-
         lifecycleScope.launch {
             mViewModel.dataState.collect {
                 when (it) {
@@ -147,6 +142,8 @@ class SearchFragment : Fragment() {
                     }
 
                     is DataState.AddToFavoriteResponse -> {
+                        binding.progressBar.visibility = View.GONE
+                        Log.e("Here ", " AddToFavoriteResponse Search")
 //                       Removed favorite from search at the moment. TODO Configure sync of favourite between search, home and favorite
                     }
 

@@ -44,6 +44,8 @@ class SearchedRecipeAdapter(
         val recipe = recipeList[position]
         holder.recipeName.text = recipe.title
 
+        holder.cbFavorite.setOnCheckedChangeListener(null)
+
         if (recipe.image?.isNotEmpty() == true)
             Picasso.with(context).load(recipeList[position].image).into(holder.recipeImage)
 

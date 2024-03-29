@@ -22,11 +22,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.squareup.picasso.Picasso
 import kotlin.math.roundToInt
 
-
 class RandomRecipeFragment : DialogFragment() {
 
     private lateinit var mBinding: FragmentRandomRecipeBinding
-
     private var recipeId = -1
 
     override fun onCreateView(

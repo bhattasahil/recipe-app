@@ -45,7 +45,10 @@ class MainRepository @Inject constructor(
         return mRemoteRepo.getRandomRecipe()
     }
 
-    fun changeFavoriteStatus(recipe: RecipeData, isToFavorite: Boolean) {
-
+    suspend fun getAllLocalRecipes(): RecipeResponseData? {
+        val recipesData = mLocalRepo.getRecipesByTag("")
+        if (recipesData != null) return recipesData
+        return null
     }
+
 }

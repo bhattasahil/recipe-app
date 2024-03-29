@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.binay.recipeapp.R
 import com.binay.recipeapp.data.model.RecipeData
-import com.binay.recipeapp.data.model.RecipeResponseData
 import com.binay.recipeapp.databinding.FragmentHomeBinding
 import com.binay.recipeapp.uis.intent.DataIntent
 import com.binay.recipeapp.uis.viewmodel.MainViewModel
@@ -33,8 +32,6 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
     private lateinit var recipeAdapter: RecipeRecyclerAdapter
 
     private val viewModel: MainViewModel by activityViewModels()
-
-    private var responseData: RecipeResponseData? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -118,8 +115,7 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
                 when (it) {
                     is DataState.Loading -> {
                         Log.e("TAG", "initViewModel: loading")
-                        if (responseData == null)
-                            binding.progressBar.visibility = View.VISIBLE
+                        binding.progressBar.visibility = View.VISIBLE
                     }
 
                     is DataState.ResponseData -> {
@@ -128,7 +124,8 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
                         binding.refreshLayout.isRefreshing = false
                         binding.noInternetLayout.visibility = View.GONE
 
-                        responseData = it.recipeResponseData
+                        Log.e("Recipes ", " " + it.recipeResponseData.recipes)
+
                         recipeAdapter.setRecipes(it.recipeResponseData.recipes)
                         if (it.recipeResponseData.recipes.isEmpty() && !NetworkUtil.isNetworkAvailable(
                                 requireContext()
@@ -139,6 +136,7 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
                     }
 
                     is DataState.AddToFavoriteResponse -> {
+                        binding.progressBar.visibility = View.GONE
                         recipeAdapter.changeFavoriteStatus(it.recipe, it.isFromHome)
                     }
 
@@ -172,12 +170,10 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
 
     private var currentCategoryPosition = 0
     override fun categoryClick(position: Int) {
-
         currentCategoryPosition = position
         adapter.updateAdapter(position)
         binding.recipeRecycler.visibility = View.GONE
 
-        responseData = null
         getCategoryWiseData()
     }
 

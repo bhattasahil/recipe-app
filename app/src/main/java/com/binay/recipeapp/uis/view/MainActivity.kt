@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.PorterDuff
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -130,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                         Log.e("TAG", "initViewModel: loading")
                     }
 
-                    is DataState.ResponseData -> {
+                    is DataState.RandomRecipe -> {
                         val recipe = it.recipeResponseData.recipes[0]
                         fragmentViewModel.randomRecipe.value = recipe
 

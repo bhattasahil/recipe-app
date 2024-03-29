@@ -82,12 +82,13 @@ class RecipeRecyclerAdapter(
         notifyItemInserted(recipeList.size - 1)
     }
 
-//Changes favourite status in HomeFragment when favorite is removed from FavouriteFragment
+    //Changes favourite status in HomeFragment when favorite is removed from FavouriteFragment
     fun changeFavoriteStatus(recipe: RecipeData, isFromHome: Boolean) {
         if (!isFromHome) {
             val recipeOfList = recipeList.find { it.id == recipe.id }
             recipeOfList?.let {
                 val position = recipeList.indexOf(it)
+                recipeList[position] = recipe
                 notifyItemChanged(position)
             }
         }

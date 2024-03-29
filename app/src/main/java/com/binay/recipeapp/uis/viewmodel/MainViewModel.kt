@@ -163,7 +163,6 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             dataState.value = DataState.Loading
             dataState.value = try {
-                mRepository.changeFavoriteStatus(recipe, isToFavorite)
                 recipe.isFavorite = isToFavorite
 //               Checks recipe Dao for favorites and updates data accordingly
                 recipeDao.changeRecipeFavoriteStatus(recipe)
@@ -190,7 +189,6 @@ class MainViewModel @Inject constructor(
             dataState.value = DataState.Loading
             dataState.value = try {
                 val searchedRecipeData = mRepository.searchRecipes(query)
-                Log.e("sdsdd ", "" + searchedRecipeData)
 //               Checks recipe Dao for favorites and updates data accordingly
 //                Note: If recipe has isFavorite flag set, then it is favorite
                 val searchedRecipes = searchedRecipeData.results ?: return@launch
@@ -214,9 +212,7 @@ class MainViewModel @Inject constructor(
     private fun changeFavoriteStatus(recipe: SearchedRecipe, isToFavorite: Boolean) {
         val recipeId = recipe.id ?: return
         viewModelScope.launch {
-            dataState.value = DataState.Loading
             try {
-
                 val deferredRecipeDetail = async {
                     Log.e("Recipe Detail ", " Here")
                     return@async mRepository.getRecipeDetail(recipeId)
@@ -224,11 +220,22 @@ class MainViewModel @Inject constructor(
 
                 val recipeDetail = deferredRecipeDetail.await()
                 dataState.value = try {
-                    Log.e("Favorite ", " Here")
+                    Log.e("Favourite ", " Here")
                     recipeDetail.isFavorite = isToFavorite
+                    recipeDetail.tagToBeSearchedBy = ""
 //               Checks recipe Dao for favorites and updates data accordingly
-                    recipeDao.changeRecipeFavoriteStatus(recipeDetail)
-                    DataState.AddToFavoriteResponse(RecipeData(), false)
+                    val localRecipes = mRepository.getAllLocalRecipes()
+//                    Change favorite status if recipe is already present otherwise add it to favorite
+                    if (localRecipes != null) {
+                        val filteredRecipes =
+                            localRecipes.recipes.filter { recipe -> recipe.id == recipeId }
+                        if (filteredRecipes.isEmpty()) {
+                            recipeDao.addFavoriteRecipe(recipeDetail)
+                        } else {
+                            recipeDao.changeRecipeFavoriteStatus(recipeDetail)
+                        }
+                    }
+                    DataState.AddToFavoriteResponse(recipeDetail, false)
                 } catch (e: Exception) {
                     // TODO: Add proper way to parse error message and display to users
                     Log.e("Error ", "" + e.localizedMessage)
@@ -322,7 +329,7 @@ class MainViewModel @Inject constructor(
             dataState.value = DataState.Loading
             dataState.value = try {
                 val recipes = mRepository.getRandomRecipe()
-                DataState.ResponseData(recipes)
+                DataState.RandomRecipe(recipes)
             } catch (e: Exception) {
                 // TODO: Add proper way to parse error message and display to users
                 DataState.Error(e.localizedMessage)
