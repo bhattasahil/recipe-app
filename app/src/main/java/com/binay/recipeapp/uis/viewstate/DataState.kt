@@ -1,6 +1,5 @@
 package com.binay.recipeapp.uis.viewstate
 
-
 import com.binay.recipeapp.data.model.ExtendedIngredients
 import com.binay.recipeapp.data.model.RecipeData
 import com.binay.recipeapp.data.model.RecipeResponseData
@@ -17,17 +16,18 @@ sealed class DataState {
 
     data class Error(val error: String?) : DataState()
 
-    data class AddToFavoriteResponse(val recipe: RecipeData) : DataState()
+    data class AddToFavoriteResponse(val recipe: RecipeData, val isFromHome: Boolean) : DataState()
 
     data class FavoriteResponse(val recipes: ArrayList<RecipeData>?) : DataState()
 
     data class SearchRecipes(val searchRecipeData: SearchedRecipeData) : DataState()
 
-    data class SearchRecipesByNutrients(val searchedRecipes: ArrayList<SearchedRecipe>) : DataState()
+    data class SearchRecipesByNutrients(val searchedRecipes: ArrayList<SearchedRecipe>) :
+        DataState()
 
-    data class IngredientResponse(val ingredients: ArrayList<ExtendedIngredients>): DataState()
+    data class IngredientResponse(val ingredients: ArrayList<ExtendedIngredients>) : DataState()
 
-    data class AddToShoppingList(val ingredients: List<ExtendedIngredients>): DataState()
+    data class AddToShoppingList(val ingredients: List<ExtendedIngredients>) : DataState()
 
-    data class FetchWebsiteList(val websites: List<WebsiteData>): DataState()
+    data class FetchWebsiteList(val websites: List<WebsiteData>) : DataState()
 }

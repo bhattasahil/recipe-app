@@ -48,6 +48,7 @@
                     android:id="@+id/cb_favorite"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
+                    android:visibility="gone"
                     android:button="@drawable/fav_selector"
                     android:buttonTint="@color/favorite_checked"
                     android:checked="false" />

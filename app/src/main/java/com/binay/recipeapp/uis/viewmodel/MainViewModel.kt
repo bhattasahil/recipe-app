@@ -96,7 +96,7 @@ class MainViewModel @Inject constructor(
 
                     is DataIntent.ChangeFavoriteStatus -> changeFavoriteStatus(
                         it.recipe,
-                        it.isToFavorite
+                        it.isToFavorite, it.isFromHome
                     )
 
                     is DataIntent.FetchFavoriteRecipe -> fetchFavoriteRecipes()
@@ -134,9 +134,8 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             dataState.value = DataState.Loading
             dataState.value = try {
-                val recipes = mRepository.getRecipes(tag)
-
-                DataState.ResponseData(recipes)
+                val recipeResponse = mRepository.getRecipes(tag)
+                DataState.ResponseData(recipeResponse)
             } catch (e: Exception) {
                 // TODO: Add proper way to parse error message and display to users
                 DataState.Error(e.localizedMessage)
@@ -146,7 +145,6 @@ class MainViewModel @Inject constructor(
 
     private fun fetchRecipeDetailData(recipeID: Int) {
         viewModelScope.launch {
-            Log.e("viewmodel", "fetchRecipeDetailData: ")
             dataState.value = DataState.Loading
             dataState.value = try {
                 val recipeDetail = mRepository.getRecipeDetail(recipeID)
@@ -157,14 +155,19 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun changeFavoriteStatus(recipe: RecipeData, isToFavorite: Boolean) {
+    private fun changeFavoriteStatus(
+        recipe: RecipeData,
+        isToFavorite: Boolean,
+        isFromHome: Boolean
+    ) {
         viewModelScope.launch {
             dataState.value = DataState.Loading
             dataState.value = try {
+                mRepository.changeFavoriteStatus(recipe, isToFavorite)
                 recipe.isFavorite = isToFavorite
 //               Checks recipe Dao for favorites and updates data accordingly
                 recipeDao.changeRecipeFavoriteStatus(recipe)
-                DataState.AddToFavoriteResponse(recipe)
+                DataState.AddToFavoriteResponse(recipe, isFromHome)
             } catch (e: Exception) {
                 // TODO: Add proper way to parse error message and display to users
                 Log.e("Error ", "" + e.localizedMessage)
@@ -225,7 +228,7 @@ class MainViewModel @Inject constructor(
                     recipeDetail.isFavorite = isToFavorite
 //               Checks recipe Dao for favorites and updates data accordingly
                     recipeDao.changeRecipeFavoriteStatus(recipeDetail)
-                    DataState.AddToFavoriteResponse(RecipeData())
+                    DataState.AddToFavoriteResponse(RecipeData(), false)
                 } catch (e: Exception) {
                     // TODO: Add proper way to parse error message and display to users
                     Log.e("Error ", "" + e.localizedMessage)

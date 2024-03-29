@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.binay.recipeapp.R
@@ -26,9 +26,8 @@ class FavoriteFragment : Fragment() {
 
     private lateinit var mBinding: FragmentFavoriteBinding
     private lateinit var mAdapter: RecipeRecyclerAdapter
-    private val mViewModel: MainViewModel by viewModels()
+    private val mViewModel: MainViewModel by activityViewModels()
 
-    private var mListener: FavoriteListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,13 +42,6 @@ class FavoriteFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initView()
         initViewModel()
-    }
-
-    override fun onAttach(context: Context) {
-        if (context is FavoriteListener) {
-            mListener = context
-        }
-        super.onAttach(context)
     }
 
     private fun initView() {
@@ -103,7 +95,10 @@ class FavoriteFragment : Fragment() {
                         if (!isFavorite) {
                             mAdapter.removeRecipe(it.recipe)
                         }
-                        mListener?.refreshHomeFragment()
+//                        When Favorite is added through HomeFragment
+                        else {
+                            mAdapter.addRecipe(it.recipe)
+                        }
                     }
 
                     is DataState.FavoriteResponse -> {
@@ -126,25 +121,18 @@ class FavoriteFragment : Fragment() {
         lifecycleScope.launch {
             mViewModel.dataIntent.send(
                 DataIntent.ChangeFavoriteStatus(
-                    recipe, isToFavorite
+                    recipe, isToFavorite, false
                 )
             )
         }
     }
-
 
     private fun fetchData() {
         lifecycleScope.launch {
             mViewModel.dataIntent.send(
-                DataIntent.FetchFavoriteRecipe(
-                    true
-                )
+                DataIntent.FetchFavoriteRecipe
             )
         }
     }
 
-
-    interface FavoriteListener {
-        fun refreshHomeFragment()
-    }
 }

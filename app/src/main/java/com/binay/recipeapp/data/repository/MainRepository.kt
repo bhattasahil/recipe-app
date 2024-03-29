@@ -2,6 +2,7 @@ package com.binay.recipeapp.data.repository
 
 import android.content.Context
 import com.binay.recipeapp.data.api.ApiHelper
+import com.binay.recipeapp.data.model.RecipeData
 import com.binay.recipeapp.data.repository.local.LocalRepo
 import com.binay.recipeapp.data.model.RecipeResponseData
 import com.binay.recipeapp.data.repository.remote.RemoteRepo
@@ -42,5 +43,9 @@ class MainRepository @Inject constructor(
             if (localRandomRecipe != null) return localRandomRecipe
         }
         return mRemoteRepo.getRandomRecipe()
+    }
+
+    fun changeFavoriteStatus(recipe: RecipeData, isToFavorite: Boolean) {
+
     }
 }

@@ -27,14 +27,9 @@ import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(),
-    HomeFragment.HomeFragmentListener,
-    FavoriteFragment.FavoriteListener,
-    SearchFragment.SearchListener {
-
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val mViewModel: MainViewModel by viewModels()
@@ -57,7 +52,6 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initView() {
-
         binding.toolbar.list.setOnClickListener {
             startActivity(Intent(this, ShoppingListActivity::class.java))
         }
@@ -144,7 +138,7 @@ class MainActivity : AppCompatActivity(),
                     }
 
                     else -> {
-                        Log.e("Response is here","as")
+                        Log.e("Response is here", "as")
                     }
                 }
             }
@@ -182,28 +176,6 @@ class MainActivity : AppCompatActivity(),
 
         override fun getItemCount(): Int {
             return fragments.size
-        }
-    }
-
-    override fun refreshFavoriteFragment() {
-        Handler(Looper.getMainLooper()).post {
-            val positionOfFavorite = 2
-            val fragment = pagerAdapter.createFragment(positionOfFavorite)
-            pagerAdapter.notifyItemChanged(positionOfFavorite)
-            if (fragment is FavoriteFragment) {
-                Log.e("Favorite fragment ", "refreshed")
-            }
-        }
-    }
-
-    override fun refreshHomeFragment() {
-        Handler(Looper.getMainLooper()).post {
-            val positionOfFavorite = 0
-            val fragment = pagerAdapter.createFragment(positionOfFavorite)
-            pagerAdapter.notifyItemChanged(positionOfFavorite)
-            if (fragment is HomeFragment) {
-                Log.e("Home fragment ", "refreshed")
-            }
         }
     }
 

@@ -1,6 +1,5 @@
 package com.binay.recipeapp.uis.view
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,9 +32,8 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
     private lateinit var adapter: CategoryRecyclerAdapter
     private lateinit var recipeAdapter: RecipeRecyclerAdapter
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by activityViewModels()
 
-    private var mListener: HomeFragmentListener? = null
     private var responseData: RecipeResponseData? = null
 
     override fun onCreateView(
@@ -114,13 +112,6 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
         fetchData("all")
     }
 
-    override fun onAttach(context: Context) {
-        if (context is HomeFragmentListener) {
-            mListener = context
-        }
-        super.onAttach(context)
-    }
-
     private fun initViewModel() {
         lifecycleScope.launch {
             viewModel.dataState.collect {
@@ -137,7 +128,6 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
                         binding.refreshLayout.isRefreshing = false
                         binding.noInternetLayout.visibility = View.GONE
 
-                        Log.d("haancha", "initViewModel: " + it.recipeResponseData)
                         responseData = it.recipeResponseData
                         recipeAdapter.setRecipes(it.recipeResponseData.recipes)
                         if (it.recipeResponseData.recipes.isEmpty() && !NetworkUtil.isNetworkAvailable(
@@ -149,8 +139,7 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
                     }
 
                     is DataState.AddToFavoriteResponse -> {
-                        Log.d("Favorite", " Vayo")
-                        mListener?.refreshFavoriteFragment()
+                        recipeAdapter.changeFavoriteStatus(it.recipe, it.isFromHome)
                     }
 
                     else -> {
@@ -175,7 +164,7 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
         lifecycleScope.launch {
             viewModel.dataIntent.send(
                 DataIntent.ChangeFavoriteStatus(
-                    recipe, isToFavorite
+                    recipe, isToFavorite, true
                 )
             )
         }
@@ -201,16 +190,8 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
             }
 
             else -> {
-                Log.d(
-                    "hanyo",
-                    "categoryClick: " + currentCategoryPosition + cuisines[currentCategoryPosition]
-                )
                 fetchData(cuisines[currentCategoryPosition].lowercase(Locale.ROOT))
             }
         }
-    }
-
-    interface HomeFragmentListener {
-        fun refreshFavoriteFragment()
     }
 }
