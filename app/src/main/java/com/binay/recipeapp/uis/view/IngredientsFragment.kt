@@ -23,7 +23,7 @@ class IngredientsFragment: Fragment(), IngredientsRecyclerAdapter.IngredientClic
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         mBinding = FragmentInstructionsBinding.inflate(inflater)
         return mBinding.root
     }

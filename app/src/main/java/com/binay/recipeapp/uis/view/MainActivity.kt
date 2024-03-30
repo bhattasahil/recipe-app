@@ -6,7 +6,6 @@ import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -16,6 +15,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.binay.recipeapp.R
 import com.binay.recipeapp.databinding.ActivityMainBinding
 import com.binay.recipeapp.uis.intent.DataIntent
+import com.binay.recipeapp.uis.view.base.BaseActivity
 import com.binay.recipeapp.uis.view.search.SearchFragment
 import com.binay.recipeapp.uis.viewmodel.FragmentDataViewModel
 import com.binay.recipeapp.uis.viewmodel.MainViewModel
@@ -27,7 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val mViewModel: MainViewModel by viewModels()
@@ -133,6 +133,10 @@ class MainActivity : AppCompatActivity() {
                         fragmentViewModel.randomRecipe.value = recipe
 
                         initRandomRecipeView()
+                    }
+
+                    is DataState.Error -> {
+                        showError(binding.root, it.error)
                     }
 
                     else -> {

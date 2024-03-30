@@ -5,13 +5,13 @@ import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.binay.recipeapp.R
 import com.binay.recipeapp.data.model.ExtendedIngredients
 import com.binay.recipeapp.databinding.ActivityShoppingListBinding
 import com.binay.recipeapp.uis.intent.DataIntent
+import com.binay.recipeapp.uis.view.base.BaseActivity
 import com.binay.recipeapp.uis.viewmodel.MainViewModel
 import com.binay.recipeapp.uis.viewstate.DataState
 import com.google.android.material.snackbar.Snackbar
@@ -19,15 +19,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ShoppingListActivity: AppCompatActivity(),
+class ShoppingListActivity : BaseActivity(),
     ShoppingListRecyclerAdapter.GroceryItemClickListener {
 
     private lateinit var mBinding: ActivityShoppingListBinding
     private val mViewModel: MainViewModel by viewModels()
     private lateinit var mAdapter: ShoppingListRecyclerAdapter
 
-    private var groceryList: MutableList<ExtendedIngredients> = ArrayList() //this stores the current shopping list from room
-    private var groceryDeleteList: MutableList<ExtendedIngredients> = ArrayList() //this stores the list to be deleted
+    private var groceryList: MutableList<ExtendedIngredients> =
+        ArrayList() //this stores the current shopping list from room
+    private var groceryDeleteList: MutableList<ExtendedIngredients> =
+        ArrayList() //this stores the list to be deleted
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +61,8 @@ class ShoppingListActivity: AppCompatActivity(),
         }
 
         mBinding.recyclerView.setHasFixedSize(true)
-        mBinding.recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        mBinding.recyclerView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mAdapter = ShoppingListRecyclerAdapter(this, this)
         mBinding.recyclerView.adapter = mAdapter
     }
@@ -67,7 +70,10 @@ class ShoppingListActivity: AppCompatActivity(),
     private fun deleteItems(groceryList: MutableList<ExtendedIngredients>) {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("DELETE")
-        builder.setMessage("Are you sure you want to delete ".plus(groceryList.size).plus(" item(s) from your list?"))
+        builder.setMessage(
+            "Are you sure you want to delete ".plus(groceryList.size)
+                .plus(" item(s) from your list?")
+        )
 
         builder.setPositiveButton("YES") { dialog, _ ->
             for (item in groceryList) {
@@ -91,10 +97,6 @@ class ShoppingListActivity: AppCompatActivity(),
     }
 
     private fun initViewModel() {
-//        mViewModel = ViewModelProvider(
-//            this,
-//            ViewModelFactory(this)
-//        )[MainViewModel::class.java]
 
         lifecycleScope.launch {
             mViewModel.dataState.collect {
@@ -105,9 +107,13 @@ class ShoppingListActivity: AppCompatActivity(),
 
                     is DataState.IngredientResponse -> {
                         groceryList = it.ingredients
-                        Log.e("list", "initViewModel: " +groceryList.size )
+                        Log.e("list", "initViewModel: " + groceryList.size)
                         mBinding.itemCount.text = "Total Items: ".plus(groceryList.size)
                         mAdapter.setIngredients(groceryList)
+                    }
+
+                    is DataState.Error -> {
+                        showError(mBinding.root, it.error)
                     }
 
                     else -> {
@@ -140,7 +146,6 @@ class ShoppingListActivity: AppCompatActivity(),
     }
 
     override fun onCounterValueChanged(ingredients: List<ExtendedIngredients>) {
-
         lifecycleScope.launch {
             mViewModel.dataIntent.send(
                 DataIntent.AddToShoppingList(

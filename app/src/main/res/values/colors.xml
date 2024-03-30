@@ -28,5 +28,7 @@
     <color name="circular_progress_indicator_color">#6a9e7b</color>
 
     <color name="loading_progress_color">#e76f51</color>
+    <color name="snack_bar_background">#e76f51</color>
+    <color name="snack_bar_text_color">#FFFFFF</color>
 
 </resources>

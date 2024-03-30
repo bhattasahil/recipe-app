@@ -1,12 +1,10 @@
 package com.binay.recipeapp.uis.view
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -14,20 +12,19 @@ import com.binay.recipeapp.R
 import com.binay.recipeapp.data.model.RecipeData
 import com.binay.recipeapp.databinding.FragmentFavoriteBinding
 import com.binay.recipeapp.uis.intent.DataIntent
+import com.binay.recipeapp.uis.view.base.BaseFragment
 import com.binay.recipeapp.uis.viewmodel.MainViewModel
 import com.binay.recipeapp.uis.viewstate.DataState
 import com.binay.recipeapp.util.NetworkUtil
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FavoriteFragment : Fragment() {
+class FavoriteFragment : BaseFragment() {
 
     private lateinit var mBinding: FragmentFavoriteBinding
     private lateinit var mAdapter: RecipeRecyclerAdapter
     private val mViewModel: MainViewModel by activityViewModels()
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,11 +53,7 @@ class FavoriteFragment : Fragment() {
 
                 override fun onRecipeClicked(recipe: RecipeData) {
                     if (!NetworkUtil.isNetworkAvailable(requireContext())) {
-                        Snackbar.make(
-                            mBinding.root,
-                            getString(R.string.no_connection),
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        showError(getString(R.string.no_connection))
                         return
                     }
                     val intent = Intent(context, RecipeDetailActivity::class.java)
@@ -72,7 +65,6 @@ class FavoriteFragment : Fragment() {
             })
 
         mBinding.rvFavorite.adapter = mAdapter
-
         mBinding.rvFavorite.setHasFixedSize(true)
         mBinding.rvFavorite.layoutManager = GridLayoutManager(requireContext(), 2)
 
@@ -83,10 +75,6 @@ class FavoriteFragment : Fragment() {
             mViewModel.dataState.collect {
                 when (it) {
                     is DataState.Loading -> {
-
-                    }
-
-                    is DataState.ResponseData -> {
 
                     }
 
@@ -104,6 +92,10 @@ class FavoriteFragment : Fragment() {
                     is DataState.FavoriteResponse -> {
                         val recipes = it.recipes ?: ArrayList()
                         mAdapter.setRecipes(recipes)
+                    }
+
+                    is DataState.Error -> {
+                        showError(it.error)
                     }
 
                     else -> {

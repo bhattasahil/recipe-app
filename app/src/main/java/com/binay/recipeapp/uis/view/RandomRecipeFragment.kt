@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowMetrics
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.binay.recipeapp.R
@@ -68,7 +69,25 @@ class RandomRecipeFragment : DialogFragment() {
         mBinding.explore.setOnClickListener {
             if (recipeId != -1) {
                 if (!NetworkUtil.isNetworkAvailable(requireContext())) {
-                    Snackbar.make(requireActivity().findViewById(android.R.id.content), getString(R.string.no_connection), Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(
+                        requireActivity().findViewById(android.R.id.content),
+                        getString(R.string.no_connection),
+                        Snackbar.LENGTH_SHORT
+                    )
+                        .setBackgroundTint(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.snack_bar_background
+                            )
+                        )
+                        .setTextColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.snack_bar_text_color
+                            )
+                        )
+                        .show()
+
                     return@setOnClickListener
                 }
                 val intent = Intent(context, RecipeDetailActivity::class.java)

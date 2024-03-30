@@ -50,5 +50,6 @@
     <string name="explore">Explore Recipe </string>
     <string name="random_title">Recipe Roulette: Random Delight</string>
     <string name="no_connection">Please check your internet connection and try again later..</string>
+    <string name="label_error_try_again">Error. Please try again later</string>
 
 </resources>

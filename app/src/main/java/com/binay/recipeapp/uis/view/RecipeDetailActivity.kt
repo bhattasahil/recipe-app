@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -19,6 +18,7 @@ import com.binay.recipeapp.R
 import com.binay.recipeapp.data.model.RecipeData
 import com.binay.recipeapp.databinding.ActivityRecipedetailBinding
 import com.binay.recipeapp.uis.intent.DataIntent
+import com.binay.recipeapp.uis.view.base.BaseActivity
 import com.binay.recipeapp.uis.view.cookingTimer.CookingTimerActivity
 import com.binay.recipeapp.uis.viewmodel.FragmentDataViewModel
 import com.binay.recipeapp.uis.viewmodel.MainViewModel
@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class RecipeDetailActivity : AppCompatActivity(), TabLayout.OnTabSelectedListener {
+class RecipeDetailActivity : BaseActivity(), TabLayout.OnTabSelectedListener {
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var mBinding: ActivityRecipedetailBinding
@@ -124,7 +124,6 @@ class RecipeDetailActivity : AppCompatActivity(), TabLayout.OnTabSelectedListene
     }
 
     private fun initViewModel() {
-
         fragmentViewModel = ViewModelProvider(this)[FragmentDataViewModel::class.java]
         fragmentViewModel.isChecked.observe(this) {
             if (it)
@@ -132,11 +131,6 @@ class RecipeDetailActivity : AppCompatActivity(), TabLayout.OnTabSelectedListene
             else
                 mBinding.addToListButton.visibility = View.GONE
         }
-
-//        viewModel = ViewModelProvider(
-//            this,
-//            ViewModelFactory(this)
-//        )[MainViewModel::class.java]
 
         lifecycleScope.launch {
             viewModel.dataState.collect {
@@ -151,6 +145,10 @@ class RecipeDetailActivity : AppCompatActivity(), TabLayout.OnTabSelectedListene
                         recipeName = recipeData.title ?: ""
                         readyInMinutes = recipeData.readyInMinutes
                         populateView(recipeData)
+                    }
+
+                    is DataState.Error ->{
+                        showError(mBinding.root, it.error)
                     }
 
                     else -> {
@@ -275,10 +273,10 @@ class RecipeDetailActivity : AppCompatActivity(), TabLayout.OnTabSelectedListene
     }
 }
 
-class MyPagerAdapter(fragmentActivity: FragmentActivity?, fragments: ArrayList<Fragment>) :
+class MyPagerAdapter(fragmentActivity: FragmentActivity?,
+                     private val fragments: ArrayList<Fragment>
+) :
     FragmentStateAdapter(fragmentActivity!!) {
-
-    private val fragments = fragments
 
     override fun createFragment(position: Int): Fragment {
         return fragments[position]

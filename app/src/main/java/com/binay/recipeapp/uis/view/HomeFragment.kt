@@ -2,11 +2,9 @@ package com.binay.recipeapp.uis.view
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -15,17 +13,17 @@ import com.binay.recipeapp.R
 import com.binay.recipeapp.data.model.RecipeData
 import com.binay.recipeapp.databinding.FragmentHomeBinding
 import com.binay.recipeapp.uis.intent.DataIntent
+import com.binay.recipeapp.uis.view.base.BaseFragment
 import com.binay.recipeapp.uis.viewmodel.MainViewModel
 import com.binay.recipeapp.uis.viewstate.DataState
 import com.binay.recipeapp.util.NetworkUtil
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.util.Locale
 
 @AndroidEntryPoint
-class HomeFragment : Fragment(), OnCategoryClickListener {
+class HomeFragment : BaseFragment(), OnCategoryClickListener {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var adapter: CategoryRecyclerAdapter
@@ -72,17 +70,13 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
                     try {
                         changeFavoriteStatus(recipe, isToFavorite)
                     } catch (e: Exception) {
-                        Log.e("Here", " Favorite exception")
+                        showError(getString(R.string.label_error_try_again))
                     }
                 }
 
                 override fun onRecipeClicked(recipe: RecipeData) {
                     if (!NetworkUtil.isNetworkAvailable(requireContext())) {
-                        Snackbar.make(
-                            binding.root,
-                            getString(R.string.no_connection),
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        showError(getString(R.string.no_connection))
                         return
                     }
                     val intent = Intent(context, RecipeDetailActivity::class.java)
@@ -97,11 +91,7 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
         binding.refreshLayout.setOnRefreshListener {
             if (!NetworkUtil.isNetworkAvailable(requireContext())) {
                 binding.refreshLayout.isRefreshing = false
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.no_connection),
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                showError(getString(R.string.label_error_try_again))
             } else
                 getCategoryWiseData()
         }
@@ -114,7 +104,6 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
             viewModel.dataState.collect {
                 when (it) {
                     is DataState.Loading -> {
-                        Log.e("TAG", "initViewModel: loading")
                         binding.progressBar.visibility = View.VISIBLE
                     }
 
@@ -123,8 +112,6 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
                         binding.recipeRecycler.visibility = View.VISIBLE
                         binding.refreshLayout.isRefreshing = false
                         binding.noInternetLayout.visibility = View.GONE
-
-                        Log.e("Recipes ", " " + it.recipeResponseData.recipes)
 
                         recipeAdapter.setRecipes(it.recipeResponseData.recipes)
                         if (it.recipeResponseData.recipes.isEmpty() && !NetworkUtil.isNetworkAvailable(
@@ -138,6 +125,10 @@ class HomeFragment : Fragment(), OnCategoryClickListener {
                     is DataState.AddToFavoriteResponse -> {
                         binding.progressBar.visibility = View.GONE
                         recipeAdapter.changeFavoriteStatus(it.recipe, it.isFromHome)
+                    }
+
+                    is DataState.Error -> {
+                        showError(it.error)
                     }
 
                     else -> {

@@ -1,8 +1,11 @@
 package com.binay.recipeapp.uis.viewmodel
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.binay.recipeapp.R
 import com.binay.recipeapp.data.local.WebsiteDao
 import com.binay.recipeapp.data.local.ingredientDb.IngredientDao
 import com.binay.recipeapp.data.local.recipesDb.RecipeDao
@@ -13,7 +16,9 @@ import com.binay.recipeapp.data.model.WebsiteData
 import com.binay.recipeapp.data.repository.MainRepository
 import com.binay.recipeapp.uis.intent.DataIntent
 import com.binay.recipeapp.uis.viewstate.DataState
+import com.binay.recipeapp.util.NetworkUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +32,8 @@ class MainViewModel @Inject constructor(
     private val mRepository: MainRepository,
     private val recipeDao: RecipeDao,
     private val websiteDao: WebsiteDao,
-    private val ingredientDao: IngredientDao
+    private val ingredientDao: IngredientDao,
+    @SuppressLint("StaticFieldLeak") @ApplicationContext private val mContext: Context
 ) : ViewModel() {
 
     val dataIntent = Channel<DataIntent>(Channel.UNLIMITED)
@@ -137,13 +143,13 @@ class MainViewModel @Inject constructor(
                 val recipeResponse = mRepository.getRecipes(tag)
                 DataState.ResponseData(recipeResponse)
             } catch (e: Exception) {
-                // TODO: Add proper way to parse error message and display to users
                 DataState.Error(e.localizedMessage)
             }
         }
     }
 
     private fun fetchRecipeDetailData(recipeID: Int) {
+        if (!isNetworkAvailable()) return
         viewModelScope.launch {
             dataState.value = DataState.Loading
             dataState.value = try {
@@ -168,8 +174,6 @@ class MainViewModel @Inject constructor(
                 recipeDao.changeRecipeFavoriteStatus(recipe)
                 DataState.AddToFavoriteResponse(recipe, isFromHome)
             } catch (e: Exception) {
-                // TODO: Add proper way to parse error message and display to users
-                Log.e("Error ", "" + e.localizedMessage)
                 DataState.Error(e.localizedMessage)
             }
         }
@@ -185,6 +189,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun searchRecipes(query: String) {
+        if (!isNetworkAvailable()) return
         viewModelScope.launch {
             dataState.value = DataState.Loading
             dataState.value = try {
@@ -203,7 +208,6 @@ class MainViewModel @Inject constructor(
                 }
                 DataState.SearchRecipes(searchedRecipeData)
             } catch (e: Exception) {
-                // TODO: Add proper way to parse error message and display to users
                 DataState.Error(e.localizedMessage)
             }
         }
@@ -211,6 +215,7 @@ class MainViewModel @Inject constructor(
 
     private fun changeFavoriteStatus(recipe: SearchedRecipe, isToFavorite: Boolean) {
         val recipeId = recipe.id ?: return
+        if (!isNetworkAvailable()) return
         viewModelScope.launch {
             try {
                 val deferredRecipeDetail = async {
@@ -220,7 +225,6 @@ class MainViewModel @Inject constructor(
 
                 val recipeDetail = deferredRecipeDetail.await()
                 dataState.value = try {
-                    Log.e("Favourite ", " Here")
                     recipeDetail.isFavorite = isToFavorite
                     recipeDetail.tagToBeSearchedBy = ""
 //               Checks recipe Dao for favorites and updates data accordingly
@@ -237,18 +241,17 @@ class MainViewModel @Inject constructor(
                     }
                     DataState.AddToFavoriteResponse(recipeDetail, false)
                 } catch (e: Exception) {
-                    // TODO: Add proper way to parse error message and display to users
-                    Log.e("Error ", "" + e.localizedMessage)
                     DataState.Error(e.localizedMessage)
                 }
             } catch (e: Exception) {
-                Log.e("Error ", "" + e.localizedMessage)
+                DataState.Error(e.localizedMessage)
             }
 
         }
     }
 
     private fun searchRecipesByNutrients(query: String) {
+        if (!isNetworkAvailable()) return
         viewModelScope.launch {
             dataState.value = DataState.Loading
             dataState.value = try {
@@ -268,7 +271,6 @@ class MainViewModel @Inject constructor(
                 }
                 DataState.SearchRecipesByNutrients(searchedRecipes)
             } catch (e: Exception) {
-                // TODO: Add proper way to parse error message and display to users
                 DataState.Error(e.localizedMessage)
             }
         }
@@ -292,8 +294,6 @@ class MainViewModel @Inject constructor(
                 ingredientDao.addAllIngredients(ingredients)
                 DataState.AddToShoppingList(ingredients)
             } catch (e: Exception) {
-                // TODO: Add proper way to parse error message and display to users
-                Log.e("Error ", "" + e.localizedMessage)
                 DataState.Error(e.localizedMessage)
             }
         }
@@ -307,7 +307,6 @@ class MainViewModel @Inject constructor(
                 val updatedList = ingredientDao.getAllIngredients()
                 DataState.IngredientResponse(updatedList.toCollection(ArrayList()))
             } catch (e: Exception) {
-                Log.e("Error ", "" + e.localizedMessage)
                 DataState.Error(e.localizedMessage)
             }
         }
@@ -331,9 +330,17 @@ class MainViewModel @Inject constructor(
                 val recipes = mRepository.getRandomRecipe()
                 DataState.RandomRecipe(recipes)
             } catch (e: Exception) {
-                // TODO: Add proper way to parse error message and display to users
                 DataState.Error(e.localizedMessage)
             }
         }
     }
+
+    private fun isNetworkAvailable(): Boolean {
+        if (!NetworkUtil.isNetworkAvailable(mContext)) {
+            dataState.value = DataState.Error(mContext.getString(R.string.no_connection))
+            return false
+        }
+        return true
+    }
+
 }

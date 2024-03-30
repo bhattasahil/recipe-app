@@ -4,12 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -18,16 +16,16 @@ import com.binay.recipeapp.data.model.SearchedRecipe
 import com.binay.recipeapp.databinding.FragmentSearchBinding
 import com.binay.recipeapp.uis.intent.DataIntent
 import com.binay.recipeapp.uis.view.RecipeDetailActivity
+import com.binay.recipeapp.uis.view.base.BaseFragment
 import com.binay.recipeapp.uis.viewmodel.MainViewModel
 import com.binay.recipeapp.uis.viewstate.DataState
 import com.binay.recipeapp.util.NetworkUtil
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
 @AndroidEntryPoint
-class SearchFragment : Fragment() {
+class SearchFragment : BaseFragment() {
 
     private lateinit var binding: FragmentSearchBinding
     private val mViewModel: MainViewModel by activityViewModels()
@@ -66,17 +64,13 @@ class SearchFragment : Fragment() {
                     try {
                         changeFavoriteStatus(recipe, isToFavorite)
                     } catch (e: Exception) {
-                        Log.e("Here", " Favorite exception")
+                        showError(e.message)
                     }
                 }
 
                 override fun onRecipeClicked(recipe: SearchedRecipe) {
                     if (!NetworkUtil.isNetworkAvailable(requireContext())) {
-                        Snackbar.make(
-                            binding.root,
-                            getString(R.string.no_connection),
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        showError(getString(R.string.no_connection))
                         return
                     }
                     val intent = Intent(context, RecipeDetailActivity::class.java)
@@ -131,10 +125,6 @@ class SearchFragment : Fragment() {
                         binding.progressBar.visibility = View.VISIBLE
                     }
 
-                    is DataState.ResponseData -> {
-
-                    }
-
                     is DataState.SearchRecipes -> {
                         binding.progressBar.visibility = View.GONE
                         val recipes = it.searchRecipeData.results ?: ArrayList()
@@ -143,13 +133,16 @@ class SearchFragment : Fragment() {
 
                     is DataState.AddToFavoriteResponse -> {
                         binding.progressBar.visibility = View.GONE
-                        Log.e("Here ", " AddToFavoriteResponse Search")
-//                       Removed favorite from search at the moment. TODO Configure sync of favourite between search, home and favorite
                     }
 
                     is DataState.SearchRecipesByNutrients -> {
                         binding.progressBar.visibility = View.GONE
                         mAdapter.setRecipes(it.searchedRecipes)
+                    }
+
+                    is DataState.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        showError(it.error)
                     }
 
                     else -> {
