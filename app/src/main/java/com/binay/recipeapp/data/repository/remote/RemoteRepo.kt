@@ -18,6 +18,7 @@ class RemoteRepo @Inject constructor(
         if (randomRecipeData.recipes.isNotEmpty()) {
             val newRandomRecipe = randomRecipeData.recipes[0]
             newRandomRecipe.isRandom = true
+            newRandomRecipe.tagToBeSearchedBy = ""
 //                    Fetch previous random recipe
             val previousRandomRecipe = randomRecipeDao.getRandomRecipe()
             Log.e("Random recipe ", "ayo $previousRandomRecipe")
