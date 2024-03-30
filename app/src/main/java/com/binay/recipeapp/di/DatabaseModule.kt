@@ -1,6 +1,7 @@
 package com.binay.recipeapp.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.binay.recipeapp.data.local.WebsiteDao
 import com.binay.recipeapp.data.local.AppDatabase
@@ -46,5 +47,10 @@ object DatabaseModule {
     @Provides
     fun provideIngredientDao(database: AppDatabase): IngredientDao {
         return database.ingredientDao()
+    }
+
+    @Provides
+    fun provideSharedPreference(@ApplicationContext appContext: Context): SharedPreferences {
+        return appContext.getSharedPreferences("my_preferences", Context.MODE_PRIVATE)
     }
 }

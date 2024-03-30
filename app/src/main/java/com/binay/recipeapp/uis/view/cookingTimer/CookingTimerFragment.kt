@@ -15,8 +15,15 @@ import androidx.core.content.ContextCompat
 import com.binay.recipeapp.R
 import com.binay.recipeapp.databinding.FragmentCookingTimerBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CookingTimerFragment : BottomSheetDialogFragment() {
+
+    @Inject
+    lateinit var mPreference: SharedPreferences
+
     private lateinit var mBinding: FragmentCookingTimerBinding
     private var timeInMinutes: Int? = 40
     private var recipeName = "Test"
@@ -26,15 +33,16 @@ class CookingTimerFragment : BottomSheetDialogFragment() {
     private val notificationId = System.currentTimeMillis().toInt()
 
     private var startTime: Long = 0
-    private var sharedPreferences: SharedPreferences? = null
     private var firstTime = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        startTime = mPreference.getLong("started_at", 0)
+
         if (startTime == 0.toLong()) {
             firstTime = true
             startTime = System.currentTimeMillis()
-            val editor = sharedPreferences?.edit()
+            val editor = mPreference.edit()
             editor?.putLong("started_at", startTime)
             editor?.apply()
         }
