@@ -3,32 +3,21 @@ package com.binay.recipeapp.uis.view.cookingTimer
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
-import android.graphics.Point
-import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
-import android.view.Display
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowMetrics
-import androidx.fragment.app.DialogFragment
+import androidx.core.content.ContextCompat
 import com.binay.recipeapp.R
-import com.binay.recipeapp.databinding.ActivityCookingTimerBinding
-import kotlin.math.roundToInt
+import com.binay.recipeapp.databinding.FragmentCookingTimerBinding
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-/**
- * Activity that displays timer and sounds alarm once timer is completed
- */
-class CookingTimerActivity : DialogFragment() {
-
-    private lateinit var mBinding: ActivityCookingTimerBinding
+class CookingTimerFragment : BottomSheetDialogFragment() {
+    private lateinit var mBinding: FragmentCookingTimerBinding
     private var timeInMinutes: Int? = 40
     private var recipeName = "Test"
     private var isAlreadyLessThanHour = false
@@ -40,31 +29,8 @@ class CookingTimerActivity : DialogFragment() {
     private var sharedPreferences: SharedPreferences? = null
     private var firstTime = false
 
-    fun newInstance(duration: Int, recipeName: String): CookingTimerActivity? {
-        val fragment = CookingTimerActivity()
-        val args = Bundle()
-        args.putInt("ready_in_minutes", duration)
-        args.putString("recipe_name", recipeName)
-        fragment.arguments = args
-        return fragment
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        mBinding = ActivityCookingTimerBinding.inflate(inflater)
-        return mBinding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        sharedPreferences = context?.getSharedPreferences("my_preferences", Context.MODE_PRIVATE)
-
-        startTime = sharedPreferences?.getLong("started_at", 0)!!
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (startTime == 0.toLong()) {
             firstTime = true
             startTime = System.currentTimeMillis()
@@ -75,29 +41,26 @@ class CookingTimerActivity : DialogFragment() {
 
         timeInMinutes = arguments?.getInt("ready_in_minutes", 0)
         recipeName = arguments?.getString("recipe_name") ?: ""
-        initView()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        mBinding = FragmentCookingTimerBinding.inflate(inflater)
+        return mBinding.root
+    }
 
-        val screenWidth = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics: WindowMetrics = requireActivity().windowManager.currentWindowMetrics
-            windowMetrics.bounds.width()
-        } else {
-            val display: Display = requireActivity().windowManager.defaultDisplay
-            val size = Point()
-            display.getSize(size)
-            size.x
-        }
-
-        dialog?.window?.let {
-            it.setLayout(
-                (screenWidth / 1.1).roundToInt(),
-                ViewGroup.LayoutParams.WRAP_CONTENT
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (view.parent as View).setBackgroundColor(
+            ContextCompat.getColor(
+                requireContext(),
+                android.R.color.transparent
             )
-            it.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        }
+        )
+        initView()
     }
 
     /**
@@ -206,7 +169,7 @@ class CookingTimerActivity : DialogFragment() {
             val timerInMillis: Long = (timeInMinutes!! * 60 * 1000).toLong()
             if (elapsedTime < timerInMillis) {
                 val newTimeMilis = timerInMillis - elapsedTime
-                val hours = newTimeMilis/ (1000 * 60 * 60)
+                val hours = newTimeMilis / (1000 * 60 * 60)
                 if (hours <= 0) {
                     isAlreadyLessThanHour = true
                     mBinding.llHour.visibility = View.GONE
@@ -311,6 +274,7 @@ class CookingTimerActivity : DialogFragment() {
         Log.e("Alarm setting at ", " $timeWhenAlarmIsToBeSet")
     }
 
+
     /**
      * Cancels alarm
      */
@@ -327,16 +291,10 @@ class CookingTimerActivity : DialogFragment() {
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        val alarmManager = requireContext().applicationContext.getSystemService(ALARM_SERVICE) as AlarmManager
+        val alarmManager =
+            requireContext().applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(pendingIntent)
     }
-
-    /**
-     * Finishes activity
-     */
-//    private fun finishActivity() {
-//        onBackPressedDispatcher.onBackPressed()
-//    }
 
     /**
      * Cancel alarm and timer if already present
@@ -349,6 +307,14 @@ class CookingTimerActivity : DialogFragment() {
 
     companion object {
         const val ALARM_REQUEST_CODE = 123
-    }
 
+        fun newInstance(duration: Int, recipeName: String): CookingTimerFragment {
+            val fragment = CookingTimerFragment()
+            val args = Bundle()
+            args.putInt("ready_in_minutes", duration)
+            args.putString("recipe_name", recipeName)
+            fragment.arguments = args
+            return fragment
+        }
+    }
 }

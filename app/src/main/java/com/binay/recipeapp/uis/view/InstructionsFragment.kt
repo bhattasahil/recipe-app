@@ -11,7 +11,7 @@ import com.binay.recipeapp.data.model.AnalyzedInstructions
 import com.binay.recipeapp.databinding.FragmentInstructionsBinding
 import com.binay.recipeapp.uis.viewmodel.FragmentDataViewModel
 
-class InstructionsFragment: Fragment() {
+class InstructionsFragment : Fragment() {
 
     private lateinit var mBinding: FragmentInstructionsBinding
     private lateinit var viewModel: FragmentDataViewModel
@@ -41,10 +41,12 @@ class InstructionsFragment: Fragment() {
 
     private fun initView() {
         mBinding.recyclerView.setHasFixedSize(true)
-        mBinding.recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        mBinding.recyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
     }
 
     private fun populateInstructions(items: List<AnalyzedInstructions>) {
+        if (items.isEmpty()) return
         val mAdapter = items[0].steps?.let { InstructionsRecyclerAdapter(it) }
         mBinding.recyclerView.adapter = mAdapter
     }

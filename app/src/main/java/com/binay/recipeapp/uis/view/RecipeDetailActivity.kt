@@ -19,7 +19,7 @@ import com.binay.recipeapp.data.model.RecipeData
 import com.binay.recipeapp.databinding.ActivityRecipedetailBinding
 import com.binay.recipeapp.uis.intent.DataIntent
 import com.binay.recipeapp.uis.view.base.BaseActivity
-import com.binay.recipeapp.uis.view.cookingTimer.CookingTimerActivity
+import com.binay.recipeapp.uis.view.cookingTimer.CookingTimerFragment
 import com.binay.recipeapp.uis.viewmodel.FragmentDataViewModel
 import com.binay.recipeapp.uis.viewmodel.MainViewModel
 import com.binay.recipeapp.uis.viewstate.DataState
@@ -82,10 +82,10 @@ class RecipeDetailActivity : BaseActivity(), TabLayout.OnTabSelectedListener {
             mBinding.btnStartCooking.text = "View Timer"
             if (readyInMinutes != null) {
                 val cookingFragment =
-                    CookingTimerActivity().newInstance(readyInMinutes!!, recipeName)
-                cookingFragment?.show(
+                    CookingTimerFragment.newInstance(readyInMinutes!!, recipeName)
+                cookingFragment.show(
                     supportFragmentManager,
-                    CookingTimerActivity::class.java.canonicalName
+                    CookingTimerFragment::class.java.canonicalName
                 )
             }
         }
@@ -147,7 +147,7 @@ class RecipeDetailActivity : BaseActivity(), TabLayout.OnTabSelectedListener {
                         populateView(recipeData)
                     }
 
-                    is DataState.Error ->{
+                    is DataState.Error -> {
                         showError(mBinding.root, it.error)
                     }
 
@@ -273,8 +273,9 @@ class RecipeDetailActivity : BaseActivity(), TabLayout.OnTabSelectedListener {
     }
 }
 
-class MyPagerAdapter(fragmentActivity: FragmentActivity?,
-                     private val fragments: ArrayList<Fragment>
+class MyPagerAdapter(
+    fragmentActivity: FragmentActivity?,
+    private val fragments: ArrayList<Fragment>
 ) :
     FragmentStateAdapter(fragmentActivity!!) {
 
