@@ -36,7 +36,6 @@
     <string-array name="more_fragment_list">
         <item>Unit Converter</item>
     </string-array>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_search_by_colon">Search By:</string>
     <string name="label_recipes">Recipes</string>
@@ -51,5 +50,9 @@
     <string name="random_title">Recipe Roulette: Random Delight</string>
     <string name="no_connection">Please check your internet connection and try again later..</string>
     <string name="label_error_try_again">Error. Please try again later</string>
+    <string name="label_timer_finished">Congrats!! Your meal is ready</string>
+    <string name="label_view_timer">View Timer</string>
+    <string name="label_vegetarian">Vegetarian</string>
+    <string name="label_eggs_meat">Contains Egg/Meat</string>
 
 </resources>
