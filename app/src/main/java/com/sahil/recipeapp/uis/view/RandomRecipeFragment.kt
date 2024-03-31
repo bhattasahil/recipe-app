@@ -87,7 +87,7 @@ class RandomRecipeFragment : DialogFragment() {
                             )
                         )
                         .show()
-
+                    dismiss()
                     return@setOnClickListener
                 }
                 val intent = Intent(context, RecipeDetailActivity::class.java)
