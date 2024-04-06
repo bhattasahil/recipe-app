@@ -23,7 +23,7 @@ Have an expert on your device to help you become MasterChef.
 
 ## Tools used:
 
-- Architecture : MVI [](https://krishanmadushankadev.medium.com/android-mvi-model-view-intent-architecture-example-code-bc7dc8edb33)
-- Dependency Injection : Hilt [](https://developer.android.com/training/dependency-injection/hilt-android)
+-  [Architecture : MVI](https://krishanmadushankadev.medium.com/android-mvi-model-view-intent-architecture-example-code-bc7dc8edb33)
+-  [Dependency Injection : Hilt](https://developer.android.com/training/dependency-injection/hilt-android)
 - Local Database : Room
 - Includes remote and local database sync
