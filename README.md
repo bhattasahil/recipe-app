@@ -5,11 +5,16 @@ Whether have took your first step in the kitchen or you are a seasoned chef, Rec
 Have an expert on your device to help you become MasterChef.
 
 ## App Demos:
-![](/Users/sahilbhatta/Desktop/Screenshot_20240329_152818.png)
-![](/Users/sahilbhatta/Desktop/Screenshot_20240329_152911.png)
-![](/Users/sahilbhatta/Desktop/Screenshot_20240329_152925.png)
-![](/Users/sahilbhatta/Desktop/Screenshot_20240329_153022.png)
-![](/Users/sahilbhatta/Desktop/Screenshot_20240329_153047.png)
+- Random Recipe:
+  <img height="480" src="sc_start.png"/>
+- Home:
+  <img height="480" src="sc_home.png"/>
+- Favourites:
+  <img height="480" src="sc_favourites.png"/>
+- Search:
+  <img height="480" src="sc_search.png"/>
+- Unit Converter:
+    <img height="480" src="sc_unit_converter.png"/>
 
 ## Tools used:
 
